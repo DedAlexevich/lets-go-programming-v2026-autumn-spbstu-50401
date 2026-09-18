@@ -7,7 +7,7 @@ func main() {
 	var op rune
 	_, efirst := fmt.Scan(&a)
 	_, esecond := fmt.Scan(&b)
-	fmt.Scanf("%c\n", &op)
+	_, err := fmt.Scanf("%c\n", &op)
 
 	if efirst != nil {
 		fmt.Println("Invalid first operand")
@@ -15,6 +15,8 @@ func main() {
 	} else if esecond != nil {
 		fmt.Println("Invalid second operand")
 		return
+	} else if err != nil {
+		fmt.Println("Invalid operation")
 	}
 
 	switch op {
