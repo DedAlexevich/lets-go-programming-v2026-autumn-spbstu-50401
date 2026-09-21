@@ -5,18 +5,23 @@ import "fmt"
 func main() {
 	var a, b int
 	var op rune
-	_, efirst := fmt.Scan(&a)
-	_, esecond := fmt.Scan(&b)
-	_, err := fmt.Scanf("%c\n", &op)
 
+	_, efirst := fmt.Scan(&a)
 	if efirst != nil {
 		fmt.Println("Invalid first operand")
 		return
-	} else if esecond != nil {
+	}
+
+	_, esecond := fmt.Scan(&b)
+	if esecond != nil {
 		fmt.Println("Invalid second operand")
 		return
-	} else if err != nil {
+	}
+
+	_, err := fmt.Scanf("%c\n", &op)
+	if err != nil {
 		fmt.Println("Invalid operation")
+		return
 	}
 
 	switch op {
