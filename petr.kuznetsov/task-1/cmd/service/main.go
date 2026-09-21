@@ -34,6 +34,7 @@ func main() {
 	case '/':
 		if b == 0 {
 			fmt.Println("Division by zero")
+			return
 		} else {
 			fmt.Println(a / b)
 		}
