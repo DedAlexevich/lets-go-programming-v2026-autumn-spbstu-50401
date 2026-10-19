@@ -7,7 +7,7 @@ func main() {
 
 	_, err := fmt.Scan(&departments)
 	if err != nil {
-		fmt.Println("Error reading departments count")
+		fmt.Println(err)
 
 		return
 	}
@@ -17,7 +17,7 @@ func main() {
 
 		_, err := fmt.Scan(&employees)
 		if err != nil {
-			fmt.Println("Error reading employee count")
+			fmt.Println(err)
 
 			return
 		}
@@ -31,7 +31,7 @@ func main() {
 
 			_, err := fmt.Scanf("%c= %d", &borderSign, &locTemp)
 			if err != nil {
-				fmt.Println("Error reading temperature")
+				fmt.Println(err)
 
 				return
 			}
