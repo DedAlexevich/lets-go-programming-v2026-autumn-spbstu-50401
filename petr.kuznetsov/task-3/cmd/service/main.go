@@ -69,7 +69,7 @@ func loadCurrencies(path string) []Currency {
 	}
 
 	decoder := xml.NewDecoder(bytes.NewReader(data))
-	decoder.CharsetReader = charset.NewReaderLabel // windows-1251 -> UTF-8
+	decoder.CharsetReader = charset.NewReaderLabel
 
 	var valCurs ValCurs
 	if err := decoder.Decode(&valCurs); err != nil {
