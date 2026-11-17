@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
@@ -14,7 +15,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const dirPermissions = 0o755
+const (
+	dirPermissions  = 0o755
+	filePermissions = 0o644
+)
 
 type Config struct {
 	InputFile  string `yaml:"input-file"`
@@ -59,18 +63,16 @@ type Currency struct {
 }
 
 func loadCurrencies(path string) []Currency {
-	inputFile, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
 
-	defer inputFile.Close()
-
-	dec := xml.NewDecoder(inputFile)
-	dec.CharsetReader = charset.NewReaderLabel
+	decoder := xml.NewDecoder(bytes.NewReader(data))
+	decoder.CharsetReader = charset.NewReaderLabel // windows-1251 -> UTF-8
 
 	var valCurs ValCurs
-	if err := dec.Decode(&valCurs); err != nil {
+	if err := decoder.Decode(&valCurs); err != nil {
 		panic(err)
 	}
 
@@ -98,17 +100,12 @@ func saveJSON(path string, data []Currency) {
 		panic(err)
 	}
 
-	outputFile, err := os.Create(path)
+	serialized, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 
-	defer outputFile.Close()
-
-	enc := json.NewEncoder(outputFile)
-	enc.SetIndent("", "  ")
-
-	if err := enc.Encode(data); err != nil {
+	if err := os.WriteFile(path, serialized, filePermissions); err != nil {
 		panic(err)
 	}
 }
