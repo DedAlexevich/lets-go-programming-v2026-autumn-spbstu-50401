@@ -14,6 +14,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const dirPermissions = 0o755
+
 type Config struct {
 	InputFile  string `yaml:"input-file"`
 	OutputFile string `yaml:"output-file"`
@@ -57,53 +59,53 @@ type Currency struct {
 }
 
 func loadCurrencies(path string) []Currency {
-	f, err := os.Open(path)
+	inputFile, err := os.Open(path)
 	if err != nil {
 		panic(err)
 	}
 
-	defer f.Close()
+	defer inputFile.Close()
 
-	dec := xml.NewDecoder(f)
+	dec := xml.NewDecoder(inputFile)
 	dec.CharsetReader = charset.NewReaderLabel
 
-	var vc ValCurs
-	if err := dec.Decode(&vc); err != nil {
+	var valCurs ValCurs
+	if err := dec.Decode(&valCurs); err != nil {
 		panic(err)
 	}
 
-	result := make([]Currency, 0, len(vc.Valutes))
+	result := make([]Currency, 0, len(valCurs.Valutes))
 
-	for _, v := range vc.Valutes {
-		num, err := strconv.Atoi(strings.TrimSpace(v.NumCode))
+	for _, valute := range valCurs.Valutes {
+		num, err := strconv.Atoi(strings.TrimSpace(valute.NumCode))
 		if err != nil {
 			panic(err)
 		}
 
-		val, err := strconv.ParseFloat(strings.Replace(strings.TrimSpace(v.Value), ",", ".", 1), 64)
+		val, err := strconv.ParseFloat(strings.Replace(strings.TrimSpace(valute.Value), ",", ".", 1), 64)
 		if err != nil {
 			panic(err)
 		}
 
-		result = append(result, Currency{num, strings.TrimSpace(v.CharCode), val})
+		result = append(result, Currency{num, strings.TrimSpace(valute.CharCode), val})
 	}
 
 	return result
 }
 
 func saveJSON(path string, data []Currency) {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), dirPermissions); err != nil {
 		panic(err)
 	}
 
-	f, err := os.Create(path)
+	outputFile, err := os.Create(path)
 	if err != nil {
 		panic(err)
 	}
 
-	defer f.Close()
+	defer outputFile.Close()
 
-	enc := json.NewEncoder(f)
+	enc := json.NewEncoder(outputFile)
 	enc.SetIndent("", "  ")
 
 	if err := enc.Encode(data); err != nil {
