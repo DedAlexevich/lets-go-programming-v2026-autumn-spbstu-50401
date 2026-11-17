@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -86,6 +88,26 @@ func loadCurrencies(path string) []Currency {
 	}
 
 	return result
+}
+
+func saveJSON(path string, data []Currency) {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		panic(err)
+	}
+
+	f, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "  ")
+
+	if err := enc.Encode(data); err != nil {
+		panic(err)
+	}
 }
 
 func main() {
