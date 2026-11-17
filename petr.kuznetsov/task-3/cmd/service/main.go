@@ -6,6 +6,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -117,4 +118,13 @@ func main() {
 	if *configPath == "" {
 		panic("Doesn't add flag -config")
 	}
+
+	cfg := loadConfig(*configPath)
+	currencies := loadCurrencies(cfg.InputFile)
+
+	sort.Slice(currencies, func(i, j int) bool {
+		return currencies[i].Value > currencies[j].Value
+	})
+
+	saveJSON(cfg.OutputFile, currencies)
 }
