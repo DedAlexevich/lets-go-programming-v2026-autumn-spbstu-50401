@@ -79,9 +79,14 @@ func loadCurrencies(path string) []Currency {
 	result := make([]Currency, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
-		num, err := strconv.Atoi(strings.TrimSpace(valute.NumCode))
-		if err != nil {
-			panic(err)
+		num := 0
+		numCode := strings.TrimSpace(valute.NumCode)
+
+		if numCode != "" {
+			num, err = strconv.Atoi(numCode)
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		val, err := strconv.ParseFloat(strings.Replace(strings.TrimSpace(valute.Value), ",", ".", 1), 64)
