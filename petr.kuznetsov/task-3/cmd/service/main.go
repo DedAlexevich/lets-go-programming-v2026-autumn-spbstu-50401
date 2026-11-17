@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"os"
+	"strconv"
 	"strings"
 
+	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v3"
 )
 
@@ -32,6 +35,57 @@ func loadConfig(path string) Config {
 	}
 
 	return cfg
+}
+
+type ValCurs struct {
+	Valutes []Valute `xml:"Valute"`
+}
+
+type Valute struct {
+	NumCode  string `xml:"NumCode"`
+	CharCode string `xml:"CharCode"`
+	Value    string `xml:"Value"`
+}
+
+type Currency struct {
+	NumCode  int     `json:"num_code"`
+	CharCode string  `json:"char_code"`
+	Value    float64 `json:"value"`
+}
+
+func loadCurrencies(path string) []Currency {
+	f, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	dec := xml.NewDecoder(f)
+	dec.CharsetReader = charset.NewReaderLabel
+
+	var vc ValCurs
+	if err := dec.Decode(&vc); err != nil {
+		panic(err)
+	}
+
+	result := make([]Currency, 0, len(vc.Valutes))
+
+	for _, v := range vc.Valutes {
+		num, err := strconv.Atoi(strings.TrimSpace(v.NumCode))
+		if err != nil {
+			panic(err)
+		}
+
+		val, err := strconv.ParseFloat(strings.Replace(strings.TrimSpace(v.Value), ",", ".", 1), 64)
+		if err != nil {
+			panic(err)
+		}
+
+		result = append(result, Currency{num, strings.TrimSpace(v.CharCode), val})
+	}
+
+	return result
 }
 
 func main() {
